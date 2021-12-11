@@ -81,12 +81,20 @@ function findPkgDeps(pkg, callback) {
 }
 
 function copyModules(pkgContent, callback) {
-  const { name } = pkgContent;
+  const { name, version } = pkgContent;
   const srcDir = path.resolve(gOpts.srcDir, `node_modules/${name}`);
   const dstDir = path.resolve(gOpts.dstDir, `node_modules/${name}`);
   const { filter } = gOpts;
   mkdirp.sync(dstDir);
   const opts = { clobber: false, dereference: true, filter };
+  if (gOpts.overwiteIfhigher) {
+    const destinationPackage = getPackageJson(dstDir);
+    if (destinationPackage) {
+      if (semver.gt(version, destinationPackage.version)) {
+        opts.clobber = true;
+      }
+    }
+  }
   ncp(srcDir, dstDir, opts, err => callback(err));
 }
 
@@ -97,6 +105,7 @@ function copyModules(pkgContent, callback) {
  * @param {Boolean} [opts.devDependencies=false]
  * @param {Number} [opts.concurrency]
  * @param {string} [opts.filter]
+ * @param {string} [opts.overwiteIfhigher=true]
  * @param {Function} callback
  */
 function copyNodeModules(srcDir, dstDir, opts, callback) {
@@ -109,7 +118,12 @@ function copyNodeModules(srcDir, dstDir, opts, callback) {
   }
 
   if (!callback) {
-    gOpts = { srcDir, dstDir, devDependencies: false };
+    gOpts = {
+      srcDir,
+      dstDir,
+      devDependencies: false,
+      overwiteIfhigher: true,
+    };
     callback = opts;
   } else {
     gOpts = opts || {};

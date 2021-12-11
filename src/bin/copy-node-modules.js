@@ -12,6 +12,10 @@ const cliOpts = yargs => yargs
     describe: 'Include dev dependencies',
     type: 'boolean',
   })
+  .option('o', {
+    describe: 'Overwrite if source version is newer than destination version',
+    type: 'boolean',
+  })
   .option('c', {
     describe: 'Root packages\' copying concurrency',
     type: 'number',
@@ -22,8 +26,10 @@ const cliOpts = yargs => yargs
   })
   .default('v', false)
   .default('d', false)
+  .default('o', true)
   .alias('v', 'verbose')
   .alias('d', 'dev')
+  .alias('o', 'overwrite')
   .alias('c', 'concurrency')
   .alias('f', 'filter');
 
@@ -41,7 +47,7 @@ yargs
     }
 
     const { concurrency, filter } = args;
-    const options = { devDependencies: args.dev };
+    const options = { devDependencies: args.dev, overwiteIfhigher: args.overwrite };
     if (concurrency) {
       options.concurrency = concurrency;
     }
