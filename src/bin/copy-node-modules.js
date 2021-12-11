@@ -13,7 +13,7 @@ const cliOpts = yargs => yargs
     type: 'boolean',
   })
   .option('o', {
-    describe: 'Overwrite if source version is newer than destination version',
+    describe: 'Overwrite if source version is different from destination version',
     type: 'boolean',
   })
   .option('c', {
@@ -47,7 +47,7 @@ yargs
     }
 
     const { concurrency, filter } = args;
-    const options = { devDependencies: args.dev, overwiteIfhigher: args.overwrite };
+    const options = { devDependencies: args.dev, overwiteIfVersionChange: args.overwrite, verbose: args.verbose };
     if (concurrency) {
       options.concurrency = concurrency;
     }

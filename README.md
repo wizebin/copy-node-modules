@@ -54,7 +54,7 @@ var copyNodeModules = require('copy-node-modules');
 * `options`:
 
   - `devDependencies`: boolean value, defaults to **false**, showing whether modules in `devDependencies` field of `package.json` should also be copied (when it's set to **true**).
-  - `overwriteIfHigher`: boolean value, defaults to **true**, determines if source node modules should overwrite destination node modules if the version of the source is higher than the destination's
+  - `overwriteIfVersionChange`: boolean value, defaults to **true**, determines if source node modules should overwrite destination node modules if the version of the source is different from the destination's
   - `concurrency`: integer value, max number of root packages whose files are being copied concurrently.
   - `filter`: `RegExp` or function that accepts one value (the full path) and returns a boolean (copy on true).
 
@@ -112,7 +112,7 @@ copy-node-modules src_dir dest_dir [-d|--dev] [-c|--concurrency] [-v|--verbose] 
 * `src_dir`: source directory containing `package.json` file.
 * `dest_dir`: destination directory to copy modules to (modules will be copied to `dest_dir/node_modules` directory).
 * `-d|--dev`: whether modules in `devDependencies` field of `package.json` should be also copied.
-* `-o|--overwrite`: whether destination modules should be overwritten when source modules are higher versions
+* `-o|--overwrite`: whether destination modules should be overwritten when source modules are different versions
 * `-c|--concurrency`: max number of root packages whose files are being copied concurrently.
 * `-v|--verbose`: verbose mode.
 * `-f|--filter`: regular Expression, files that match this expression will be copied; it also matches directories fi:

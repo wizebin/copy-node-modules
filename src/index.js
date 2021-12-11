@@ -51,9 +51,8 @@ function addPkgDeps(baseDir, pkg, pkgs, callback) {
   }
 
   if (baseDir === gOpts.srcDir) {
-    const { name, version } = pkgContent;
     if (!semver.validRange(pkg.version) || semver.satisfies(pkgContent.version, pkg.version)) {
-      pkgs.push({ name, version });
+      pkgs.push(pkgContent);
     }
   }
 
@@ -81,16 +80,25 @@ function findPkgDeps(pkg, callback) {
 }
 
 function copyModules(pkgContent, callback) {
-  const { name, version } = pkgContent;
+  const { name, version, _from } = pkgContent;
   const srcDir = path.resolve(gOpts.srcDir, `node_modules/${name}`);
   const dstDir = path.resolve(gOpts.dstDir, `node_modules/${name}`);
   const { filter } = gOpts;
   mkdirp.sync(dstDir);
   const opts = { clobber: false, dereference: true, filter };
-  if (gOpts.overwiteIfhigher) {
+  if (gOpts.overwiteIfVersionChange) {
     const destinationPackage = getPackageJson(dstDir);
     if (destinationPackage) {
-      if (semver.gt(version, destinationPackage.version)) {
+      const { version: destinationVersion, _from: destinationFrom } = destinationPackage;
+      if (semver.neq(version, destinationVersion) || _from !== destinationFrom) {
+        if (gOpts.verbose) {
+          console.log('overwriting', name, {
+            source_version: version,
+            destination_version: destinationVersion,
+            source_from: _from,
+            destination_from: destinationFrom,
+          });
+        }
         opts.clobber = true;
       }
     }
@@ -105,7 +113,8 @@ function copyModules(pkgContent, callback) {
  * @param {Boolean} [opts.devDependencies=false]
  * @param {Number} [opts.concurrency]
  * @param {string} [opts.filter]
- * @param {string} [opts.overwiteIfhigher=true]
+ * @param {string} [opts.verbose]
+ * @param {string} [opts.overwiteIfVersionChange=true]
  * @param {Function} callback
  */
 function copyNodeModules(srcDir, dstDir, opts, callback) {
@@ -122,7 +131,8 @@ function copyNodeModules(srcDir, dstDir, opts, callback) {
       srcDir,
       dstDir,
       devDependencies: false,
-      overwiteIfhigher: true,
+      overwiteIfVersionChange: true,
+      verbose: false,
     };
     callback = opts;
   } else {
